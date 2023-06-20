@@ -95,6 +95,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -109,8 +111,8 @@ public class ProjectSecurityConfig {
          */
 
         http.authorizeHttpRequests((requests) ->
-                        requests.requestMatchers("/myAccount","/myBalance","/myLoans","/myCards").authenticated()
-                        .requestMatchers("/notices","/contact").permitAll())
+                        requests.requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards").authenticated()
+                                .requestMatchers("/notices", "/contact").permitAll())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults());
         return http.build();
@@ -133,6 +135,7 @@ public class ProjectSecurityConfig {
     }
 
     /*
+    Approach 1
     O código fornecido é um trecho de código em Java que cria um bean chamado `userDetailsManager` utilizando
     o framework Spring Security.
 
@@ -154,9 +157,17 @@ public class ProjectSecurityConfig {
     e autorizar os usuários em sua aplicação Spring Security.
 
     withDefaultPasswordEncoder is deprecated
+
+
+
+    Approach 2
+    A abordagem 2 é uma variação da abordagem anterior, onde em vez de usar User.withDefaultPasswordEncoder(),
+    está sendo utilizado User.withUsername(). Ambas as abordagens criam usuários com detalhes semelhantes,
+    mas utilizam métodos diferentes para construir os objetos UserDetails.
     */
     @Bean
     public InMemoryUserDetailsManager userDetailsManager() {
+        /* Approach 1
         UserDetails admin = User.withDefaultPasswordEncoder()
                 .username("admin")
                 .password("12345")
@@ -170,5 +181,24 @@ public class ProjectSecurityConfig {
                 .build();
 
         return new InMemoryUserDetailsManager(admin, user);
+        */
+
+        // Approach 2
+        UserDetails admin = User.withUsername("admin")
+                .password("12345")
+                .authorities("admin")
+                .build();
+
+        UserDetails user = User.withUsername("user")
+                .password("12345")
+                .authorities("read")
+                .build();
+
+        return new InMemoryUserDetailsManager(admin, user);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
     }
 }
