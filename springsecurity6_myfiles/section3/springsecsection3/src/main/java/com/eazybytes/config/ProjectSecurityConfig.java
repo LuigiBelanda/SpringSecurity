@@ -93,6 +93,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -129,4 +132,43 @@ public class ProjectSecurityConfig {
         return http.build();*/
     }
 
+    /*
+    O código fornecido é um trecho de código em Java que cria um bean chamado `userDetailsManager` utilizando
+    o framework Spring Security.
+
+    O método `userDetailsManager` utiliza a classe `InMemoryUserDetailsManager` para armazenar os
+    detalhes dos usuários em memória. Esse bean representa um gerenciador de detalhes de usuário em
+    memória e é usado pelo Spring Security para autenticar e autorizar os usuários.
+
+    O código cria dois objetos `UserDetails`:
+    - O primeiro objeto representa o administrador (admin) com nome de usuário "admin", senha
+    "12345" e autoridade "admin".
+    - O segundo objeto representa um usuário comum (user) com nome de usuário "user", senha
+    "12345" e autoridade "read".
+
+    Por fim, o método retorna uma instância de `InMemoryUserDetailsManager` com os dois objetos
+    `UserDetails` (admin e user) passados como parâmetros.
+
+    Essa configuração permite que você tenha um usuário administrador com a autoridade "admin"
+    e um usuário comum com a autoridade "read". Você pode usar essas informações para autenticar
+    e autorizar os usuários em sua aplicação Spring Security.
+
+    withDefaultPasswordEncoder is deprecated
+    */
+    @Bean
+    public InMemoryUserDetailsManager userDetailsManager() {
+        UserDetails admin = User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("12345")
+                .authorities("admin")
+                .build();
+
+        UserDetails user = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("12345")
+                .authorities("read")
+                .build();
+
+        return new InMemoryUserDetailsManager(admin, user);
+    }
 }
